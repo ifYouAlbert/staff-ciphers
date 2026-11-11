@@ -20,6 +20,12 @@ class Input:
     caesar_key: int
     vigenere_key: str
 
+    def print(self):
+        print("Input:")
+        print(f"* Text: \'{self.text}\'")
+        print(f"* Caesar key: \'{self.caesar_key}\'")
+        print(f"* Vigenere key: \'{self.vigenere_key}\'")
+
 
 @dataclass
 class Output:
@@ -70,19 +76,22 @@ def main() -> int:
     parser.add_argument(
         "--alphabet",
         choices=("en", "ru"),
-        default="en",
+        default="ru",
     )
     args = parser.parse_args()
 
     alphabet: Alphabet = ENGLISH_ALPHABET if args.alphabet == "en" else RUSSIAN_ALPHABET
 
+    print()
+
     try:
+        user_input = Input(
+            text=input("Text to encrypt: "),
+            caesar_key=int(input("Caesar key (integer): ")),
+            vigenere_key=input("Vigenere key: "),
+        )
         out = process(
-            Input(
-                text=input("Text to encrypt: "),
-                caesar_key=int(input("Caesar key (integer): ")),
-                vigenere_key=input("Vigenere key: "),
-            ),
+            data=user_input,
             alphabet=alphabet,
             exclusions=DEFAULT_EXCLUDE
         )
@@ -96,15 +105,19 @@ def main() -> int:
 
 if __name__ == "__main__":
     def example():
-        process(
-            Input(
-                text="Привет, как дела?",
-                caesar_key=3,
-                vigenere_key="Котики",
-            ),
+        _in = Input(
+            text="Привет, как дела?",
+            caesar_key=3,
+            vigenere_key="Котики",
+        )
+        _out = process(
+            data=_in,
             alphabet=RUSSIAN_ALPHABET + " ?,",
             exclusions=Exclusions()
-        ).print()
+        )
+
+        _in.print()
+        _out.print()
 
     # example()
     raise SystemExit(main())
