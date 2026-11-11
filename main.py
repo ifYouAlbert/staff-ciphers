@@ -1,12 +1,14 @@
-import string
+import argparse
 import sys
 from dataclasses import dataclass
 
 from staff_ciphers import (
+    ENGLISH_ALPHABET,
+    RUSSIAN_ALPHABET,
     caesar_decrypt,
     caesar_encrypt,
     vigenere_decrypt,
-    vigenere_encrypt,
+    vigenere_encrypt, DEFAULT_EXCLUDE, WHITESPACE,
     Alphabet,
     Exclusions
 )
@@ -64,17 +66,25 @@ def process(
 
 
 def main() -> int:
-    alphabet: Alphabet = Alphabet(string.ascii_uppercase + string.ascii_lowercase + "()\"")
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--alphabet",
+        choices=("en", "ru"),
+        default="en",
+    )
+    args = parser.parse_args()
+
+    alphabet: Alphabet = ENGLISH_ALPHABET if args.alphabet == "en" else RUSSIAN_ALPHABET
 
     try:
         out = process(
             Input(
-                text="HelloWorld(\"print\")",
-                caesar_key=5,
-                vigenere_key="Edgy",
+                text=input("Text to encrypt: "),
+                caesar_key=int(input("Caesar key (integer): ")),
+                vigenere_key=input("Vigenere key: "),
             ),
             alphabet=alphabet,
-            exclusions=Exclusions()
+            exclusions=DEFAULT_EXCLUDE
         )
     except ValueError as error:
         print(f"Error: {error}", file=sys.stderr)
@@ -85,4 +95,16 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    def example():
+        process(
+            Input(
+                text="Привет, как дела?",
+                caesar_key=3,
+                vigenere_key="Котики",
+            ),
+            alphabet=RUSSIAN_ALPHABET + " ?,",
+            exclusions=Exclusions()
+        ).print()
+
+    # example()
     raise SystemExit(main())
