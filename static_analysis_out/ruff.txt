@@ -1,0 +1,26 @@
+main.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+main.py:11:40: F401 [*] `staff_ciphers.WHITESPACE` imported but unused
+main.py:39:15: F541 [*] f-string without any placeholders
+main.py:42:15: F541 [*] f-string without any placeholders
+src\staff_ciphers\__init__.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+src\staff_ciphers\__init__.py:2:5: F401 `.primitives.alphabet.Alphabet` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:5:5: F401 `.primitives.exclusion.Exclusions` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:8:32: F401 `.ceaser.decrypt` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:9:32: F401 `.ceaser.encrypt` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:11:34: F401 `.vigenere.decrypt` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:12:34: F401 `.vigenere.encrypt` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:15:5: F401 `.presets.exclusions.DEFAULT_EXCLUDE` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:16:5: F401 `.presets.exclusions.DIGITS` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:17:5: F401 `.presets.exclusions.PUNCTUATION` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:18:5: F401 `.presets.exclusions.WHITESPACE` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:21:5: F401 `.presets.alphabets.ENGLISH_ALPHABET_UPPER` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:22:5: F401 `.presets.alphabets.ENGLISH_ALPHABET_LOWER` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:23:5: F401 `.presets.alphabets.ENGLISH_ALPHABET` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:24:5: F401 `.presets.alphabets.RUSSIAN_ALPHABET_UPPER` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:25:5: F401 `.presets.alphabets.RUSSIAN_ALPHABET_LOWER` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\__init__.py:26:5: F401 `.presets.alphabets.RUSSIAN_ALPHABET` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+src\staff_ciphers\ceaser.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+src\staff_ciphers\primitives\exclusion.py:3:1: UP040 Type alias `Exclusions` uses `TypeAlias` annotation instead of the `type` keyword
+src\staff_ciphers\vigenere.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+Found 24 errors.
+[*] 7 fixable with `--fix` (1 unsafe fix available with `--fix --unsafe-fixes`).
