@@ -25,3 +25,28 @@ uv sync
 uv run main.py
 ```
 
+## Тесты
+
+Установка:
+
+```bash
+uv sync --locked --dev
+```
+
+Запуск тестов:
+
+```bash
+uv run python -m pytest -v
+```
+
+Генерация XML-отчёта:
+
+```bash
+uv run python -m pytest --junitxml=test-results/pytest.xml
+```
+
+Генерация HTML-отчёта:
+
+```bash
+uv run --with pytest-html python -m pytest --html=test-results/report.html --self-contained-html
+```
