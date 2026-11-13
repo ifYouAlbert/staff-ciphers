@@ -20,7 +20,7 @@ def test_alphabet_rejects_empty_or_repeated_symbols(symbols: str) -> None:
 
 def test_alphabet_rejects_non_string_symbols() -> None:
     with pytest.raises(TypeError):
-        Alphabet(None)
+        Alphabet(None)  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize(
