@@ -1,0 +1,188 @@
+name: Check and build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  UV_PYTHON: "3.13"
+
+jobs:
+  quality:
+    name: Mypy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.6.14"
+          enable-cache: true
+
+      - name: Install Python and dependencies
+        run: |
+          uv python install 3.13
+          uv sync --locked --dev
+
+      - name: Ruff recommendations
+        id: ruff
+        continue-on-error: true
+        run: |
+          mkdir -p analysis-results
+          uv run --locked ruff check src main.py tests scripts --output-format github 2>&1 | tee analysis-results/ruff.txt
+
+      - name: Mypy check types
+        id: mypy
+        run: |
+          mkdir -p analysis-results
+          uv run --locked mypy src main.py tests scripts 2>&1 | tee analysis-results/mypy.txt
+
+      - name: Upload analysis reports
+        id: reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: analysis-reports
+          path: analysis-results/
+          retention-days: 14
+
+      - name: Write analysis summary
+        if: always()
+        env:
+          RUFF_RESULT: ${{ steps.ruff.outcome }}
+          MYPY_RESULT: ${{ steps.mypy.outcome }}
+          REPORT_URL: ${{ steps.reports.outputs.artifact-url }}
+        run: |
+          {
+            echo "## Проверка кода"
+            echo ""
+            echo "Ruff: $RUFF_RESULT"
+            echo "Mypy: $MYPY_RESULT"
+            echo ""
+            echo "Замечания Ruff - опциональны"
+            if [ -n "$REPORT_URL" ]; then
+              echo ""
+              echo "[Скачать отчёты Ruff и Mypy]($REPORT_URL)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  tests:
+    name: Pytest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.6.14"
+          enable-cache: true
+
+      - name: Install Python and dependencies
+        run: |
+          uv python install 3.13
+          uv sync --locked --dev
+
+      - name: Run tests
+        id: pytest
+        run: |
+          mkdir -p test-results
+          uv run --locked python -m pytest -v \
+            --html=test-results/report.html --self-contained-html \
+            --junitxml=test-results/pytest.xml 2>&1 | tee test-results/pytest.txt
+
+      - name: Upload test reports
+        id: reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: test-results/
+          retention-days: 14
+
+      - name: Write test summary
+        if: always()
+        env:
+          TEST_RESULT: ${{ steps.pytest.outcome }}
+          REPORT_URL: ${{ steps.reports.outputs.artifact-url }}
+        run: |
+          {
+            echo "## Тесты"
+            echo ""
+            echo "Результат Pytest: $TEST_RESULT"
+            if [ -n "$REPORT_URL" ]; then
+              echo ""
+              echo "[Скачать HTML, XML и текстовый отчёт]($REPORT_URL)"
+              echo ""
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  build:
+    name: Build
+    needs: [quality, tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.6.14"
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install 3.13
+
+      - name: Build wheel and source archive
+        id: build
+        run: uv build
+
+      - name: Verify installed wheel
+        id: smoke
+        run: |
+          uv venv --python 3.13 "$RUNNER_TEMP/wheel-check"
+          uv pip install --python "$RUNNER_TEMP/wheel-check/bin/python" dist/*.whl
+          "$RUNNER_TEMP/wheel-check/bin/python" -I scripts/check_wheel.py
+
+      - name: Upload packages
+        id: packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: python-packages
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Write build summary
+        if: always()
+        env:
+          BUILD_RESULT: ${{ steps.build.outcome }}
+          SMOKE_RESULT: ${{ steps.smoke.outcome }}
+          PACKAGE_URL: ${{ steps.packages.outputs.artifact-url }}
+        run: |
+          {
+            echo "## Сборка библиотеки"
+            echo ""
+            echo "- Сборка wheel и исходного архива: $BUILD_RESULT"
+            echo "- Проверка установленного wheel: $SMOKE_RESULT"
+            if [ -n "$PACKAGE_URL" ]; then
+              echo ""
+              echo "[Скачать пакеты]($PACKAGE_URL)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
